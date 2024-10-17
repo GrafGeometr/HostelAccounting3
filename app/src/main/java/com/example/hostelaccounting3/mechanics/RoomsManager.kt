@@ -1,0 +1,43 @@
+package com.example.hostelaccounting3.mechanics
+
+import com.example.hostelaccounting3.BASE_URL
+import com.example.hostelaccounting3.context.Context
+import com.example.hostelaccounting3.requests.RequestHelper
+import com.example.hostelaccounting3.requests.goAndWait
+import com.example.hostelaccounting3.requests.map
+import com.example.hostelaccounting3.storage.Storage
+import io.ktor.server.util.*
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.int
+import kotlinx.serialization.json.jsonObject
+import kotlinx.serialization.json.jsonPrimitive
+
+class RoomsManager(private val storage: Storage) {
+    private var currentRoomId: Int? = null
+
+    //    fun getCurrentRoomId() = currentRoomId ?: storage.get("currentRoomId").also { currentRoomId = it }
+    fun getCurrentRoomId() = currentRoomId
+    fun setCurrentRoomId(id: Int) {
+        storage.set("currentRoomId", id.toString())
+        currentRoomId = id
+    }
+}
+
+fun Context.createNewRoom(roomName: String) = RequestHelper.Post(
+    url = "$BASE_URL/rooms/create",
+    headers = emptyList(),
+    body = json.encodeToString(
+        mapOf(
+            "auth_token" to tokenHelper.getToken()!!.value,
+            "name" to roomName
+        )
+    )
+).info().map { (body, status) ->
+    json.parseToJsonElement(body).jsonObject.let {
+        Room(
+            it["id"]!!.jsonPrimitive.int,
+            it["name"]!!.jsonPrimitive.content,
+            it["code"]!!.jsonPrimitive.content
+        )
+    }
+}.goAndWait()
