@@ -11,7 +11,7 @@ import kotlinx.serialization.json.jsonPrimitive
 
 
 fun Context.login(login: String, password: String) = requestHelper.Post(
-    BASE_URL + "auth/login", body = json.encodeToString(
+    "$BASE_URL/auth/login", body = json.encodeToString(
         mapOf("name" to login, "password" to password)
     ), contentType = ContentType.Application.Json
 ).info().map { (body, status) ->
@@ -23,12 +23,12 @@ fun Context.login(login: String, password: String) = requestHelper.Post(
     if (token == null) return@map "Unknown error"
 
     tokenHelper.setToken(token)
-    navController.navigate("main_page")
+//    navController.navigate("main_page")
     null
 }.goAndWait()
 
 fun Context.register(login: String, password: String) = requestHelper.Post(
-    BASE_URL + "auth/register", body = json.encodeToString(
+    "$BASE_URL/auth/register", body = json.encodeToString(
         mapOf("name" to login, "password" to password)
     ), contentType = ContentType.Application.Json
 ).info().map { (body, status) ->
@@ -39,11 +39,11 @@ fun Context.register(login: String, password: String) = requestHelper.Post(
     val token = json.parseToJsonElement(body).jsonObject["auth_token"]?.jsonPrimitive?.content?.let { Token(it) }
     if (token == null) return@map ("Unknown error")
 
-    navController.navigate("main_page")
+//    navController.navigate("main_page")
     null
 }.goAndWait()
 
 fun Context.logout() {
     tokenHelper.removeToken()
-    navController.navigate("login")
+//    navController.navigate("login")
 }

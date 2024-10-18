@@ -12,12 +12,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.example.hostelaccounting3.context.Context
-import com.example.hostelaccounting3.datetime.Datetime
 import com.example.hostelaccounting3.login.TokenHelper
 import com.example.hostelaccounting3.login.login
 import com.example.hostelaccounting3.login.register
@@ -40,7 +35,6 @@ class MainActivity : ComponentActivity() {
                             StorageManager(preferences = getSharedPreferences("sharedPrefs", MODE_PRIVATE))
                         override val requestHelper: RequestHelper = RequestHelper
                         override val tokenHelper: TokenHelper = TokenHelper(storage)
-                        override val navController: NavHostController = rememberNavController()
 
                         var data: UserData? = null
 
@@ -57,27 +51,55 @@ class MainActivity : ComponentActivity() {
                         override val roomsManager: RoomsManager = RoomsManager(storage)
                     }
 
-                    val token = context.tokenHelper.getToken()
-
-                    NavHost(
-                        navController = context.navController,
-                        startDestination = if (token == null) "login" else "main_page"
-                    ) {
-                        composable("main_page") { context.MainPage() }
-                        composable("login") { context.Login() }
-                        composable("register") { context.Register() }
-                        composable("rooms_list") { context.Rooms() }
-                        composable("one_room") { context.OneRoom() }
-                    }
+                    context.Main()
                 }
             }
         }
     }
 }
 
+@Composable
+fun Context.Main() {
+    var token by remember { mutableStateOf(tokenHelper.getToken()) }
+
+
+    when (token) {
+        null -> LoginOrRegister { token = tokenHelper.getToken() }
+        else -> MainMenu()
+    }
+}
 
 @Composable
-fun Context.Login() {
+fun Context.MainMenu() {
+    var roomId by remember { mutableStateOf(roomsManager.getCurrentRoomId()) }
+    if (roomId == null) {
+        Rooms {
+            roomId = roomsManager.getCurrentRoomId()
+        }
+    } else {
+        OneRoom {
+            roomId = roomsManager.getCurrentRoomId()
+        }
+    }
+}
+
+@Composable
+fun Context.LoginOrRegister(onSuccess: () -> Unit) {
+    var needLogin by remember { mutableStateOf(true) }
+
+    when {
+        needLogin -> Login(onSuccess) {
+            needLogin = false
+        }
+
+        else -> Register(onSuccess) {
+            needLogin = true
+        }
+    }
+}
+
+@Composable
+fun Context.Login(onSuccess: () -> Unit, onWantRegister: () -> Unit) {
     var login by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -91,14 +113,19 @@ fun Context.Login() {
         TextField(value = login, onValueChange = { login = it })
         TextField(value = password, onValueChange = { password = it })
         Button(onClick = {
-            login(login, password)?.let {
+            val error = login(login, password)?.let {
                 showWarning = true
                 errorMessage = it
+            }
+            if (error == null) {
+                onSuccess()
             }
         }) {
             Text("Login")
         }
-        Button(onClick = { navController.navigate("register") }) {
+        Button(onClick = {
+            onWantRegister()
+        }) {
             Text("Register (if you don't have an account)")
         }
 
@@ -109,7 +136,7 @@ fun Context.Login() {
 }
 
 @Composable
-fun Context.Register() {
+fun Context.Register(onSuccess: () -> Unit, onWantLogin: () -> Unit) {
     var login by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
@@ -122,14 +149,17 @@ fun Context.Register() {
         TextField(value = login, onValueChange = { login = it })
         TextField(value = password, onValueChange = { password = it })
         Button(onClick = {
-            register(login, password)?.let {
+            val error = register(login, password)?.let {
                 showWarning = true
                 errorMessage = it
+            }
+            if (error == null) {
+                onSuccess()
             }
         }) {
             Text("Register")
         }
-        Button(onClick = { navController.navigate("login") }) {
+        Button(onClick = { onWantLogin() }) {
             Text("Login (if you already have an account)")
         }
 
@@ -139,22 +169,9 @@ fun Context.Register() {
     }
 }
 
-
 @Composable
-fun Context.MainPage() {
-    userData = getUserData()!!
-    Row {
-        Text("Name: ${userData?.name}")
-    }
-
-    navController.navigate(
-        if (roomsManager.getCurrentRoomId() != null) "one_room"
-        else "rooms_list"
-    )
-}
-
-@Composable
-fun Context.Rooms() {
+fun Context.Rooms(onRoomSelect: () -> Unit) {
+    println(roomsManager.getCurrentRoomId())
     // You can create new room
     val rooms = getRooms()
 
@@ -164,7 +181,7 @@ fun Context.Rooms() {
             rooms.forEach { room ->
                 Button(onClick = {
                     roomsManager.setCurrentRoomId(room.id)
-                    navController.navigate("one_room")
+                    onRoomSelect()
                 }) { Text(room.name) }
             }
         }
@@ -178,7 +195,7 @@ fun Context.Rooms() {
 }
 
 @Composable
-fun Context.OneRoom() {
+fun Context.OneRoom(onKillRoom: () -> Unit) {
     val roomId = roomsManager.getCurrentRoomId()
     var navbar by remember { mutableStateOf(0) }
     Column {
@@ -189,7 +206,7 @@ fun Context.OneRoom() {
             Button(onClick = { navbar = 3 }) { Text("Теги") }
             Button(onClick = {
                 roomsManager.killRoom()
-                navController.navigate("rooms_list")
+                onKillRoom()
             }) { Text("Выйти") }
         }
         when (navbar) {
@@ -204,6 +221,7 @@ fun Context.OneRoom() {
 @Composable
 fun Context.RoomPurchases() {
     val roomId = roomsManager.getCurrentRoomId()!!
+
     Text("Страница покупок")
     Column {
         Row {
