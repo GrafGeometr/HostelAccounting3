@@ -32,93 +32,29 @@ fun Context.RoomPurchases() {
     Box(modifier = Modifier.fillMaxWidth().padding(bottom = 64.dp)) {
 
         if (showAddForm) {
-            AddPurchaseForm(
-                onClose = { showAddForm = false },
-                onSuccess = { purchases += it }
-            )
+            AddPurchaseForm(onClose = { showAddForm = false }, onSuccess = { purchases += it })
         }
 
         if (editingPurchase != null) {
-            EditPurchaseForm(
-                purchase = editingPurchase!!,
-                onClose = { editingPurchase = null },
-                onSuccess = { p1, p2 ->
-                    purchases = purchases.map { if (it.id == p1.id) p2 else it }
-                }
-            )
+            EditPurchaseForm(purchase = editingPurchase!!, onClose = { editingPurchase = null }, onSuccess = { p1, p2 ->
+                purchases = purchases.map { if (it.id == p1.id) p2 else it }
+            })
         }
 
         Column(
-            modifier = Modifier
-                .fillMaxHeight()
-                .verticalScroll(rememberScrollState())
-                .padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxHeight().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             purchases.forEach { purchase ->
-                Card(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 4.dp)
-                ) {
-                    Box(
-                        modifier = Modifier
-                            .padding(horizontal = 16.dp)
-                            .padding(vertical = 8.dp)
-                    ) {
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                        ) {
-                            Text(
-                                purchase.shortUsername,
-                                modifier = Modifier.fillMaxWidth(),
-                                style = MaterialTheme.typography.headlineSmall.copy(
-                                    fontWeight = FontWeight.Bold
-                                )
-                            )
-                            Text(
-                                "${purchase.money} - ${purchase.description}",
-                                modifier = Modifier.fillMaxWidth(),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
-                            Text(
-                                purchase.datetime.toString(),
-                                modifier = Modifier
-                                    .padding(end = 8.dp, bottom = 4.dp)
-                                    .alpha(0.5f),
-                                style = MaterialTheme.typography.bodySmall
-                            )
-                        }
-
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 8.dp),
-                            horizontalArrangement = Arrangement.End
-                        ) {
-                            IconButton(onClick = {
-                                editingPurchase = purchase
-                                showAddForm = false
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Filled.Edit,
-                                    contentDescription = "Edit purchase"
-                                )
-                            }
-                            IconButton(onClick = {
-                                deletePurchase(purchaseId = purchase.id)
-                                purchases = purchases.filter { it != purchase }
-                            }) {
-                                Icon(
-                                    imageVector = Icons.Filled.Delete,
-                                    contentDescription = "Delete purchase"
-                                )
-                            }
-                        }
-                    }
-                }
+                DisplayOnePurchase(purchase, onEdit = {
+                    editingPurchase = purchase
+                    showAddForm = false
+                }, onDelete = {
+                    deletePurchase(purchaseId = purchase.id)
+                    purchases = purchases.filter { it != purchase }
+                })
             }
+            Spacer(Modifier.height(48.dp))
         }
 
         Box(
@@ -139,3 +75,4 @@ fun Context.RoomPurchases() {
         }
     }
 }
+
