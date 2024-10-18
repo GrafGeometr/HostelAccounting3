@@ -270,5 +270,37 @@ fun Context.RoomTasks() {
 
 @Composable
 fun Context.RoomTags() {
+    val roomId = roomsManager.getCurrentRoomId()!!
+
     Text("Страница тегов")
+    Column {
+        Row {
+            Text("Header")
+        }
+        var tags by remember { mutableStateOf(getTags(roomId)) }
+        tags.forEach { tag ->
+            Row {
+                Text(tag.name.toString())
+                Button(onClick = {
+                    val newTag = editTag(roomId, tagId = tag.id, "Test tag edit")
+                    tags = tags.filter { it != tag } + newTag
+                }) {
+                    Text("Изменить")
+                }
+                Button(onClick = {
+                    deleteTag(tagId = tag.id)
+                    tags = tags.filter { it != tag }
+                }) {
+                    Text("Удалить")
+                }
+            }
+        }
+
+        Button(onClick = {
+            val tag = addTag(roomId, "Test tag")
+            tags += tag
+        }) {
+            Text("ADD")
+        }
+    }
 }

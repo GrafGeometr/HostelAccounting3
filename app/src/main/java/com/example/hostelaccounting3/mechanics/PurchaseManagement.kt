@@ -66,10 +66,7 @@ fun Context.addPurchase(roomId: Int, money: Int, description: String) = tokenHel
 
 
 fun Context.editPurchase(
-    roomId: Int,
-    purchaseId: Int,
-    money: Int,
-    description: String
+    roomId: Int, purchaseId: Int, money: Int, description: String
 ) = tokenHelper.getToken()?.let { token ->
     RequestHelper.Post(
         url = "$BASE_URL/purchases/update", body = json.encodeToString(
