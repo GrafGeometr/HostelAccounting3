@@ -13,19 +13,17 @@ import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
 class RoomsManager(private val storage: Storage) {
-    private var currentRoomId: Int? = null
 
-    //    fun getCurrentRoomId() = currentRoomId ?: storage.get("currentRoomId").also { currentRoomId = it }
-    fun getCurrentRoomId() = currentRoomId
-    fun setCurrentRoomId(id: Int) {
-        storage.set("currentRoomId", id.toString())
-        currentRoomId = id
-    }
+
+    fun getCurrentRoomId() = storage.get("currentRoomId")?.toIntOrNull()
+
+    fun setCurrentRoomId(id: Int) = storage.set("currentRoomId", id.toString())
+
+    fun killRoom() = storage.remove("currentRoomId")
 }
 
 fun Context.createNewRoom(roomName: String) = RequestHelper.Post(
     url = "$BASE_URL/rooms/create",
-    headers = emptyList(),
     body = json.encodeToString(
         mapOf(
             "auth_token" to tokenHelper.getToken()!!.value,

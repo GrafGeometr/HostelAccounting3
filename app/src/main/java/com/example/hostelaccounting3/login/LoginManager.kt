@@ -13,7 +13,7 @@ import kotlinx.serialization.json.jsonPrimitive
 fun Context.login(login: String, password: String) = requestHelper.Post(
     BASE_URL + "auth/login", body = json.encodeToString(
         mapOf("name" to login, "password" to password)
-    ), headers = emptyList(), contentType = ContentType.Application.Json
+    ), contentType = ContentType.Application.Json
 ).info().map { (body, status) ->
     println("Login results came")
     if (status.value == 400) return@map "No name or password"
@@ -30,7 +30,7 @@ fun Context.login(login: String, password: String) = requestHelper.Post(
 fun Context.register(login: String, password: String) = requestHelper.Post(
     BASE_URL + "auth/register", body = json.encodeToString(
         mapOf("name" to login, "password" to password)
-    ), headers = emptyList(), contentType = ContentType.Application.Json
+    ), contentType = ContentType.Application.Json
 ).info().map { (body, status) ->
     if (status.value == 400) return@map ("No name or password")
     if (status.value == 403) return@map ("Such user already exists")

@@ -14,7 +14,7 @@ data class UserData(val id: Int, val name: String)
 
 fun Context.getUserData() = tokenHelper.getToken()?.let {
     RequestHelper.Get(
-        BASE_URL + "auth/me", headers = emptyList(), body = json.encodeToString(
+        "$BASE_URL/auth/me", body = json.encodeToString(
             mapOf("auth_token" to it.value)
         )
     ).info().map { (body, status) ->

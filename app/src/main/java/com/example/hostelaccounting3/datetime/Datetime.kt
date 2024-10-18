@@ -3,6 +3,7 @@
  */
 package com.example.hostelaccounting3.datetime
 
+import android.os.Build
 import java.time.LocalDateTime
 
 fun Int.prettyToString(length: Int = 2): String = toString().padStart(length, '0')
@@ -156,8 +157,8 @@ fun Date(year: YearNumber, month: MonthNumber, day: DayNumber): Date = Year(year
  * @param this the string to convert
  * @return a new date object
  */
-fun String.toDate() = split(".").map { it.toInt() }.let {
-    Year(it[2]).Month(it[1]).Day(it[0])
+fun String.toDate() = split("-").map { it.toInt() }.let {
+    Year(it[0]).Month(it[1]).Day(it[2])
 }
 
 /**
@@ -189,6 +190,9 @@ typealias Millisecond = Int
  */
 class Time(private val hour: Hour, private val minute: Minute, private val second: Second) {
     override fun toString(): String = "${hour.prettyToString()}:${minute.prettyToString()}:${second.prettyToString()}"
+
+    operator fun minus(other: Time): Int =
+        hour * 3600 + minute * 60 + second - other.hour * 3600 - other.minute * 60 - other.second
 }
 
 /**
@@ -213,6 +217,8 @@ class Datetime(val date: Date, val time: Time) {
      */
     override fun toString(): String = "$date $time"
 
+    operator fun minus(other: Datetime): Int = (date - other.date) * 24 * 60 * 60 + (time - other.time)
+
     /**
      * Companion object for Datetime class.
      */
@@ -223,7 +229,11 @@ class Datetime(val date: Date, val time: Time) {
          * @return the current datetime
          */
         fun now(): Datetime {
-            val now = LocalDateTime.now()
+            val now = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                LocalDateTime.now()
+            } else {
+                TODO("VERSION.SDK_INT < O")
+            }
             return Datetime(
                 Date(now.year, now.monthValue, now.dayOfMonth), Time(now.hour, now.minute, now.second)
             )

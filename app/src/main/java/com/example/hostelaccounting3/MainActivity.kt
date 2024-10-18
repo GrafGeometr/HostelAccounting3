@@ -17,6 +17,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.hostelaccounting3.context.Context
+import com.example.hostelaccounting3.datetime.Datetime
 import com.example.hostelaccounting3.login.TokenHelper
 import com.example.hostelaccounting3.login.login
 import com.example.hostelaccounting3.login.register
@@ -155,24 +156,101 @@ fun Context.MainPage() {
 @Composable
 fun Context.Rooms() {
     // You can create new room
+    val rooms = getRooms()
 
-    var rooms by remember { mutableStateOf<List<Room>>(emptyList()) }
+    println(rooms)
+    Column {
+        Row {
+            rooms.forEach { room ->
+                Button(onClick = {
+                    roomsManager.setCurrentRoomId(room.id)
+                    navController.navigate("one_room")
+                }) { Text(room.name) }
+            }
+        }
 
-    rooms = getRooms()
+        Button(onClick = {
 
-    rooms.forEach { room ->
-        Text(room.name)
-    }
-
-
-    Button(onClick = {
-
-    }) {
-        Text("Create new room")
+        }) {
+            Text("Create new room")
+        }
     }
 }
 
 @Composable
 fun Context.OneRoom() {
+    val roomId = roomsManager.getCurrentRoomId()
+    var navbar by remember { mutableStateOf(0) }
+    Column {
+        Row {
+            Button(onClick = { navbar = 0 }) { Text("Покупки") }
+            Button(onClick = { navbar = 1 }) { Text("Финансы") }
+            Button(onClick = { navbar = 2 }) { Text("Задачи") }
+            Button(onClick = { navbar = 3 }) { Text("Теги") }
+            Button(onClick = {
+                roomsManager.killRoom()
+                navController.navigate("rooms_list")
+            }) { Text("Выйти") }
+        }
+        when (navbar) {
+            0 -> RoomPurchases()
+            1 -> RoomFinances()
+            2 -> RoomTasks()
+            3 -> RoomTags()
+        }
+    }
+}
 
+@Composable
+fun Context.RoomPurchases() {
+    val roomId = roomsManager.getCurrentRoomId()!!
+    Text("Страница покупок")
+    Column {
+        Row {
+            Text("Header")
+        }
+        var purchases by remember { mutableStateOf(getPurchases(roomId)) }
+        purchases.forEach { purchase ->
+            Row {
+                Text(purchase.money.toString())
+                Text(purchase.description)
+                Text(purchase.datetime.toString())
+                Button(onClick = {
+                    val newPurchase = editPurchase(roomId, purchaseId = purchase.id, 1000, "Test purchase edit")
+                    purchases = purchases.filter { it != purchase } + newPurchase
+                }) {
+                    Text("Изменить")
+                }
+                Button(onClick = {
+                    deletePurchase(purchaseId = purchase.id)
+                    purchases = purchases.filter { it != purchase }
+                }) {
+                    Text("Удалить")
+                }
+            }
+        }
+
+        Button(onClick = {
+            val purchase = addPurchase(roomId, 1000, "Test purchase")
+            purchases += purchase
+        }) {
+            Text("ADD")
+        }
+    }
+}
+
+
+@Composable
+fun Context.RoomFinances() {
+    Text("Страница финансов")
+}
+
+@Composable
+fun Context.RoomTasks() {
+    Text("Страница заданий")
+}
+
+@Composable
+fun Context.RoomTags() {
+    Text("Страница тегов")
 }
