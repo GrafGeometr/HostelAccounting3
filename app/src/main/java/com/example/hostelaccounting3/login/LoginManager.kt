@@ -18,7 +18,7 @@ fun Context.login(login: String, password: String) = requestHelper.Post(
     println("Login results came")
     if (status.value == 400) return@map "No name or password"
     if (status.value == 403) return@map "Invalid name or password"
-    if (status.value != 200) return@map "Unknown error"
+    if (status.value >= 400) return@map "Unknown error"
     val token = json.parseToJsonElement(body).jsonObject["auth_token"]?.jsonPrimitive?.content?.let { Token(it) }
     if (token == null) return@map "Unknown error"
 
@@ -34,7 +34,7 @@ fun Context.register(login: String, password: String) = requestHelper.Post(
 ).info().map { (body, status) ->
     if (status.value == 400) return@map ("No name or password")
     if (status.value == 403) return@map ("Such user already exists")
-    if (status.value != 200) return@map ("Unknown error")
+    if (status.value >= 400) return@map ("Unknown error")
 
     val token = json.parseToJsonElement(body).jsonObject["auth_token"]?.jsonPrimitive?.content?.let { Token(it) }
     if (token == null) return@map ("Unknown error")
