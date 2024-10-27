@@ -47,6 +47,7 @@ android {
 }
 
 dependencies {
+    implementation(libs.coil.compose)
     implementation(libs.gson)
     implementation(libs.ktor.server.auth)
     implementation(libs.ktor.client.core)

@@ -25,7 +25,7 @@ class AppRequest(
         println(cache)
         if (cache.containsKey(url to requestBody)) {
             val (result, time) = cache[url to requestBody]!!
-            if ((Datetime.now() - time) < 7) {
+            if ((Datetime.now() - time) < 15) {
                 return result
             }
         }
