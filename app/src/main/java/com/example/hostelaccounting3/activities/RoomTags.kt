@@ -22,17 +22,17 @@ fun Context.RoomTags() {
     var showAddForm by remember { mutableStateOf(false) }
     var editingTag: Tag? by remember { mutableStateOf(null) }
 
-    Box(modifier = Modifier.fillMaxWidth().padding(bottom = 64.dp)) {
+    Box(modifier = Modifier.fillMaxWidth()) {
 
-//        if (showAddForm) {
-//            AddTagForm(onClose = { showAddForm = false }, onSuccess = { tags += it })
-//        }
-//
-//        if (editingTag != null) {
-//            EditTagForm(tag = editingTag!!, onClose = { editingTag = null }, onSuccess = { p1, p2 ->
-//                tags = tags.map { if (it.id == p1.id) p2 else it }
-//            })
-//        }
+        if (showAddForm) {
+            AddTagForm(onClose = { showAddForm = false }, onSuccess = { tags += it })
+        }
+
+        if (editingTag != null) {
+            EditTagForm(tag = editingTag!!, onClose = { editingTag = null }, onSuccess = { p1, p2 ->
+                tags = tags.map { if (it.id == p1.id) p2 else it }
+            })
+        }
 
         Column(
             modifier = Modifier.fillMaxHeight().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
@@ -64,7 +64,7 @@ fun Context.RoomTags() {
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
-                    contentDescription = "Добавить покупку",
+                    contentDescription = "Добавить тег",
                     tint = MaterialTheme.colorScheme.onError
                 )
             }

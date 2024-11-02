@@ -2,11 +2,12 @@ package com.example.hostelaccounting3.activities
 
 import androidx.compose.runtime.Composable
 import com.example.hostelaccounting3.context.Context
+import com.example.hostelaccounting3.mechanics.Tag
 import com.example.hostelaccounting3.mechanics.Task
 import com.example.hostelaccounting3.mechanics.addTask
 
 @Composable
-fun Context.AddTaskForm(onClose: () -> Unit, onSuccess: (Task) -> Unit) =
+fun Context.AddTaskForm(onClose: () -> Unit, onSuccess: (Task) -> Unit, allTagsList: List<Tag>) =
     TaskForm(onClose, { name, description ->
         val task = addTask(
             roomId = roomsManager.getCurrentRoomId()!!,
@@ -14,4 +15,4 @@ fun Context.AddTaskForm(onClose: () -> Unit, onSuccess: (Task) -> Unit) =
             description = description,
         )
         onSuccess(task)
-    }, submitButtonText = "Добавить")
+    }, submitButtonText = "Добавить", allTagsList = allTagsList)

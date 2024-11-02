@@ -29,7 +29,7 @@ fun Context.RoomPurchases() {
     var showAddForm by remember { mutableStateOf(false) }
     var editingPurchase: Purchase? by remember { mutableStateOf(null) }
 
-    Box(modifier = Modifier.fillMaxWidth().padding(bottom = 64.dp)) {
+    Box(modifier = Modifier.fillMaxWidth()) {
 
         if (showAddForm) {
             AddPurchaseForm(onClose = { showAddForm = false }, onSuccess = { purchases += it })

@@ -11,7 +11,7 @@ import kotlinx.serialization.json.jsonArray
 import kotlinx.serialization.json.jsonObject
 import kotlinx.serialization.json.jsonPrimitive
 
-data class Room(val id: Int, val name: String, val code: String)
+data class Room(val id: Int, val name: String, val code: String, val userShortName: String)
 
 fun Context.getRooms() = tokenHelper.getToken()?.let { token ->
     RequestHelper.Get(
@@ -25,7 +25,8 @@ fun Context.getRooms() = tokenHelper.getToken()?.let { token ->
             Room(
                 it["id"]!!.jsonPrimitive.int,
                 it["name"]!!.jsonPrimitive.content,
-                it["code"]!!.jsonPrimitive.content
+                it["code"]!!.jsonPrimitive.content,
+                it["short_name"]!!.jsonPrimitive.content
             )
         }
     }.goAndWait()

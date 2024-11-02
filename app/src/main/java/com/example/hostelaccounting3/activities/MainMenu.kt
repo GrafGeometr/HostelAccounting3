@@ -23,7 +23,8 @@ fun Context.MainMenu() {
         }
     } else {
         OneRoom {
-            roomId = roomsManager.getCurrentRoomId()
+            roomsManager.killRoom()
+            roomId = null
         }
     }
 }

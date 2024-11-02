@@ -22,6 +22,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import androidx.core.view.WindowCompat
 import com.example.hostelaccounting3.context.Context
 import com.example.hostelaccounting3.login.TokenHelper
 import com.example.hostelaccounting3.login.login
@@ -60,8 +61,9 @@ class MainActivity : ComponentActivity() {
                             }
                         override val roomsManager: RoomsManager = RoomsManager(storage)
                     }
-
-                    context.Main()
+                    Box(modifier = Modifier.padding(innerPadding)) {
+                        context.Main()
+                    }
                 }
             }
         }
@@ -71,9 +73,4 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun Context.RoomFinances() {
     Text("Страница финансов")
-}
-
-@Composable
-fun Context.RoomTasks() {
-    Text("Страница заданий")
 }

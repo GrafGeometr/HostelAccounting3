@@ -22,37 +22,37 @@ fun Context.RoomTasks() {
     val roomId = roomsManager.getCurrentRoomId()!!
 
     var tasks by remember { mutableStateOf(getTasks(roomId)) }
+    var tags by remember { mutableStateOf(getTags(roomId)) }
 
     var showAddForm by remember { mutableStateOf(false) }
     var editingTask: Task? by remember { mutableStateOf(null) }
 
-    Box(modifier = Modifier.fillMaxWidth().padding(bottom = 64.dp)) {
+    Box(modifier = Modifier.fillMaxWidth()) {
 
-//        if (showAddForm) {
-//            AddTaskForm(onClose = { showAddForm = false }, onSuccess = { tasks += it })
-//        }
-//
-//        if (editingTask != null) {
-//            EditTaskForm(task = editingTask!!, onClose = { editingTask = null }, onSuccess = { p1, p2 ->
-//                tasks = tasks.map { if (it.id == p1.id) p2 else it }
-//            })
-//        }
+        if (showAddForm) {
+            AddTaskForm(onClose = { showAddForm = false }, onSuccess = { tasks += it }, allTagsList = tags)
+        }
+
+        if (editingTask != null) {
+            EditTaskForm(task = editingTask!!, onClose = { editingTask = null }, onSuccess = { p1, p2 ->
+                tasks = tasks.map { if (it.id == p1.id) p2 else it }
+            }, allTagsList = tags)
+        }
 
         Column(
             modifier = Modifier.fillMaxHeight().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            tasks.forEachIndexed { idx, task ->
+            tasks.forEach { task ->
                 DisplayOneTask(task, onEdit = {
                     editingTask = task
                     showAddForm = false
                 }, onDelete = {
                     deleteTask(taskId = task.id)
                     tasks = tasks.filter { it != task }
-                })
-                if (idx != tasks.lastIndex) {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outline)
-                }
+                }, forceEdit = {
+                    tasks = it
+                }, allTasks = tasks)
             }
             Spacer(Modifier.height(48.dp))
         }
