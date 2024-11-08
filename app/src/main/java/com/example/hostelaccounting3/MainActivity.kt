@@ -69,8 +69,3 @@ class MainActivity : ComponentActivity() {
         }
     }
 }
-
-@Composable
-fun Context.RoomFinances() {
-    Text("Страница финансов")
-}

@@ -1,5 +1,6 @@
 package com.example.hostelaccounting3.activities
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -10,15 +11,20 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.graphics.vector.rememberVectorPainter
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
+import com.example.hostelaccounting3.R
 import com.example.hostelaccounting3.context.Context
 import com.example.hostelaccounting3.mechanics.*
 
 @Composable
-fun Context.Rooms(onRoomSelect: () -> Unit) {
+fun Context.Rooms(onRoomSelect: () -> Unit, onLogout: () -> Unit) {
     println(roomsManager.getCurrentRoomId())
     // You can create new room
     val rooms = getRooms()
@@ -57,6 +63,26 @@ fun Context.Rooms(onRoomSelect: () -> Unit) {
                 )
             }
         }
+        Box(
+            modifier = Modifier.align(Alignment.BottomEnd).padding(end = 16.dp),
+
+            ) {
+            val logoutImage = rememberVectorPainter(
+                ImageVector.vectorResource(R.drawable.logout)
+            )
+            Button(
+                onClick = {
+                    tokenHelper.removeToken()
+                    onLogout()
+                }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+            ) {
+                Image(
+                    painter = logoutImage,
+                    contentDescription = "Your SVG image",
+                    modifier = Modifier.size(24.dp),
+                )
+            }
+        }
     }
 }
 
@@ -71,16 +97,13 @@ fun RoomCard(room: Room, onClick: () -> Unit) {
             verticalAlignment = Alignment.CenterVertically
         ) {
             Text(
-                text = room.name,
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.weight(2f)
+                text = room.name, style = MaterialTheme.typography.titleMedium, modifier = Modifier.weight(2f)
             )
 
             Spacer(Modifier.width(16.dp))
 
             VerticalDivider(
-                modifier = Modifier.height(24.dp).width(1.dp),
-                color = MaterialTheme.colorScheme.outline
+                modifier = Modifier.height(24.dp).width(1.dp), color = MaterialTheme.colorScheme.outline
             )
 
             Spacer(Modifier.width(16.dp))
@@ -138,8 +161,7 @@ fun Context.AddRoomForm(onRoomSelect: () -> Unit, onClose: () -> Unit) {
 fun Context.CreateNewRoom(onClose: () -> Unit, onSuccess: (name: String) -> Unit, onSwitch: () -> Unit) {
     var name by remember { mutableStateOf("") }
 
-    TextField(
-        value = name,
+    TextField(value = name,
         onValueChange = { name = it },
         label = { Text("Название комнаты") },
         modifier = Modifier.fillMaxWidth()
@@ -157,8 +179,7 @@ fun Context.CreateNewRoom(onClose: () -> Unit, onSuccess: (name: String) -> Unit
 fun Context.JoinRoom(onClose: () -> Unit, onSuccess: (code: String) -> Unit, onSwitch: () -> Unit) {
     var code by remember { mutableStateOf("") }
 
-    TextField(
-        value = code,
+    TextField(value = code,
         onValueChange = { code = it },
         label = { Text("Код комнаты") },
         modifier = Modifier.fillMaxWidth()

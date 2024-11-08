@@ -10,17 +10,19 @@ fun Context.Main() {
 
     when (token) {
         null -> LoginOrRegister { token = tokenHelper.getToken() }
-        else -> MainMenu()
+        else -> MainMenu {
+            token = tokenHelper.getToken()
+        }
     }
 }
 
 @Composable
-fun Context.MainMenu() {
+fun Context.MainMenu(onLogout: () -> Unit) {
     var roomId by remember { mutableStateOf(roomsManager.getCurrentRoomId()) }
     if (roomId == null) {
-        Rooms {
-            roomId = roomsManager.getCurrentRoomId()
-        }
+        Rooms(
+            { roomId = roomsManager.getCurrentRoomId() }, onLogout = onLogout
+        )
     } else {
         OneRoom {
             roomsManager.killRoom()

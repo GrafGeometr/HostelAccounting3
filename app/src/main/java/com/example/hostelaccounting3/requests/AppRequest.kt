@@ -19,10 +19,6 @@ class AppRequest(
 ) {
 
     suspend operator fun invoke(): HttpResponse {
-        println(url)
-        println(requestMethod)
-        println(requestBody)
-        println(cache)
         if (cache.containsKey(url to requestBody)) {
             val (result, time) = cache[url to requestBody]!!
             if ((Datetime.now() - time) < 5) {
