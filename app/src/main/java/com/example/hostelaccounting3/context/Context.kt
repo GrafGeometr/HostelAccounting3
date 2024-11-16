@@ -3,6 +3,7 @@ package com.example.hostelaccounting3.context
 
 
 import com.example.hostelaccounting3.login.TokenHelper
+import com.example.hostelaccounting3.mechanics.RoomData
 import com.example.hostelaccounting3.mechanics.RoomsManager
 import com.example.hostelaccounting3.mechanics.UserData
 import com.example.hostelaccounting3.requests.RequestHelper
@@ -18,4 +19,7 @@ interface Context {
 
     var userData: UserData?
     val roomsManager: RoomsManager
+
+    var roomData: RoomData?
+    var syncLoopRunning: Boolean
 }

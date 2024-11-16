@@ -5,24 +5,30 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.example.hostelaccounting3.context.Context
-import com.example.hostelaccounting3.mechanics.*
+import com.example.hostelaccounting3.mechanics.RoomData
+import com.example.hostelaccounting3.mechanics.Task
+import com.example.hostelaccounting3.mechanics.deleteTask
+import com.example.hostelaccounting3.requests.goInParallel
 
 
-// TODO: checkbox (opened/closed)
-// Initially: checked := (datetime_closed == False)
-// When switched: POST request to tasks/update with {'is_opened': checked}
 @Composable
-fun Context.RoomTasks() {
-    val roomId = roomsManager.getCurrentRoomId()!!
-
-    var tasks by remember { mutableStateOf(getTasks(roomId)) }
-    var tags by remember { mutableStateOf(getTags(roomId)) }
+fun Context.RoomTasks(
+    currentRoomData: RoomData,
+    addTask: (Task) -> Unit,
+    editTask: (Task, Task) -> Unit,
+    deleteTask: (Task) -> Unit,
+    rerender: Boolean
+) {
+    val roomId = currentRoomData.roomId
 
     var showAddForm by remember { mutableStateOf(false) }
     var editingTask: Task? by remember { mutableStateOf(null) }
@@ -30,29 +36,36 @@ fun Context.RoomTasks() {
     Box(modifier = Modifier.fillMaxWidth()) {
 
         if (showAddForm) {
-            AddTaskForm(onClose = { showAddForm = false }, onSuccess = { tasks += it }, allTagsList = tags)
+            AddTaskForm(
+                onClose = { showAddForm = false },
+                onSuccess = addTask,
+                allTagsList = currentRoomData.tags,
+                currentRoomData
+            )
         }
 
         if (editingTask != null) {
-            EditTaskForm(task = editingTask!!, onClose = { editingTask = null }, onSuccess = { p1, p2 ->
-                tasks = tasks.map { if (it.id == p1.id) p2 else it }
-            }, allTagsList = tags)
+            EditTaskForm(
+                task = editingTask!!,
+                onClose = { editingTask = null },
+                onSuccess = editTask,
+                allTagsList = currentRoomData.tags,
+                currentRoomData
+            )
         }
 
         Column(
             modifier = Modifier.fillMaxHeight().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            tasks.forEach { task ->
+            currentRoomData.tasks.forEach { task ->
                 DisplayOneTask(task, onEdit = {
                     editingTask = task
                     showAddForm = false
                 }, onDelete = {
-                    deleteTask(taskId = task.id)
-                    tasks = tasks.filter { it != task }
-                }, forceEdit = {
-                    tasks = it
-                }, allTasks = tasks)
+                    deleteTask(roomId, task).goInParallel()
+                    deleteTask(task)
+                }, editTask = editTask, currentRoomData = currentRoomData)
             }
             Spacer(Modifier.height(48.dp))
         }

@@ -4,6 +4,17 @@ plugins {
 }
 
 android {
+
+    signingConfigs {
+        create("release") {
+            storeFile = file("../keystore.jks")
+            storePassword = "release"
+            keyAlias = "key0"
+            keyPassword = "release"
+            enableV2Signing = false
+        }
+    }
+
     namespace = "com.example.hostelaccounting3"
     compileSdk = 34
 
@@ -22,6 +33,7 @@ android {
 
     buildTypes {
         release {
+            signingConfig = signingConfigs.getByName("release")
             isMinifyEnabled = false
             proguardFiles(getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro")
         }

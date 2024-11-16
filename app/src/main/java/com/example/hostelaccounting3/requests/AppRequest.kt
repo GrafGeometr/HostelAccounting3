@@ -48,4 +48,8 @@ suspend fun <T> Action<T>.go(): T = this()
 
 fun <T> Action<T>.goAndWait() = runBlocking { go() }
 
-fun <T> Action<T>.goInParallel() = CoroutineScope(Dispatchers.Default).launch { go() }
+fun <T> Action<T>.goInParallel() {
+    CoroutineScope(Dispatchers.Default).launch {
+        go()
+    }
+}

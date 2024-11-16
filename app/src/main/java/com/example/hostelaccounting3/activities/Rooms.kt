@@ -1,6 +1,5 @@
 package com.example.hostelaccounting3.activities
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -11,7 +10,6 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
@@ -21,7 +19,10 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
 import com.example.hostelaccounting3.R
 import com.example.hostelaccounting3.context.Context
-import com.example.hostelaccounting3.mechanics.*
+import com.example.hostelaccounting3.mechanics.Room
+import com.example.hostelaccounting3.mechanics.createNewRoom
+import com.example.hostelaccounting3.mechanics.getRooms
+import com.example.hostelaccounting3.mechanics.joinRoom
 
 @Composable
 fun Context.Rooms(onRoomSelect: () -> Unit, onLogout: () -> Unit) {
@@ -76,10 +77,11 @@ fun Context.Rooms(onRoomSelect: () -> Unit, onLogout: () -> Unit) {
                     onLogout()
                 }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
-                Image(
+                Icon(
                     painter = logoutImage,
                     contentDescription = "Your SVG image",
                     modifier = Modifier.size(24.dp),
+                    tint = MaterialTheme.colorScheme.onError
                 )
             }
         }

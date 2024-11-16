@@ -1,26 +1,22 @@
 package com.example.hostelaccounting3.activities
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.*
-import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.zIndex
+import androidx.compose.runtime.Composable
 import com.example.hostelaccounting3.context.Context
+import com.example.hostelaccounting3.mechanics.RoomData
 import com.example.hostelaccounting3.mechanics.Tag
 import com.example.hostelaccounting3.mechanics.editTag
+import com.example.hostelaccounting3.requests.goInParallel
 
 
 @Composable
-fun Context.EditTagForm(tag: Tag, onClose: () -> Unit, onSuccess: (Tag, Tag) -> Unit) =
-    TagForm(onClose, { name ->
-        val result = editTag(
-            roomId = roomsManager.getCurrentRoomId()!!,
-            name = name,
-            tagId = tag.id
-        )
-        onSuccess(tag, result)
-    }, "Применить", tag.name)
+fun Context.EditTagForm(
+    tag: Tag, onClose: () -> Unit, onSuccess: (Tag, Tag) -> Unit, currentRoomData: RoomData
+) = TagForm(onClose, { name ->
+    val result = Tag(
+        id = tag.id, name = name, roomId = currentRoomData.roomId
+    )
+    editTag(
+        roomId = currentRoomData.roomId, tag = result
+    ).goInParallel()
+    onSuccess(tag, result)
+}, "Применить", tag.name)

@@ -14,34 +14,48 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import com.example.hostelaccounting3.context.Context
 import com.example.hostelaccounting3.mechanics.*
+import com.example.hostelaccounting3.requests.goInParallel
 import kotlin.math.abs
 
 @Composable
-fun Context.RoomFinances() {
+fun Context.RoomFinances(
+    currentRoomData: RoomData,
+    addTransaction: (Transaction) -> Unit,
+    deleteTransaction: (Transaction) -> Unit,
+    rerender: Boolean
+) {
     val roomId = roomsManager.getCurrentRoomId()!!
 
-    val financesInfo = getFinancesInfo(roomId)
+    val financesInfo = currentRoomData.financesInfo
 
-    var transactions by remember { mutableStateOf(getTransactions(roomId)) }
+    val transactions = currentRoomData.transactions
 
-    val userList = getUserList(roomId)
+    val userList = currentRoomData.users
 
     var showAddForm by remember { mutableStateOf(false) }
 
-    val currentUserId = getUserData().id
+    val currentUserId = currentRoomData.currentUser.id
 
     Box(
-        modifier = Modifier.fillMaxWidth().padding(16.dp)
+        modifier = Modifier.fillMaxWidth().padding(top=16.dp)
     ) {
         if (showAddForm) {
             AddTransactionForm(onClose = { showAddForm = false }, onSuccess = { money, toUserId ->
-                val transaction = addTransaction(money, toUserId, roomId)
-                transactions += transaction
+                val transaction = Transaction(
+                    id = genRandomId(),
+                    fromUser = currentRoomData.currentUser.shortName,
+                    fromUserId = currentUserId,
+                    toUser = userList.find { it.id == toUserId }!!.shortName,
+                    toUserId = toUserId,
+                    money = money
+                )
+                addTransaction(roomId, transaction).goInParallel()
+                addTransaction(transaction)
             }, userList = userList, currentUserId = currentUserId)
         }
 
         Column(
-            modifier = Modifier.fillMaxHeight().verticalScroll(rememberScrollState()),
+            modifier = Modifier.fillMaxHeight().verticalScroll(rememberScrollState()).padding(vertical=4.dp, horizontal=16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             Card(
@@ -64,7 +78,7 @@ fun Context.RoomFinances() {
             }
 
             Card(
-                modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(4.dp)
+                modifier = Modifier.fillMaxWidth(), elevation = CardDefaults.cardElevation(2.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp).fillMaxWidth(), verticalArrangement = Arrangement.spacedBy(8.dp)
@@ -119,10 +133,6 @@ fun Context.RoomFinances() {
                                 Text(
                                     payer, style = MaterialTheme.typography.bodyLarge
                                 )
-                                Text(
-                                    text = "${if (amount < 0) "+" else "-"}${abs(amount)}",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                )
                             }
 
                             Column(
@@ -159,10 +169,6 @@ fun Context.RoomFinances() {
                                     earner,
                                     style = MaterialTheme.typography.bodyLarge,
                                 )
-                                Text(
-                                    text = "${if (amount < 0) "-" else "+"}${abs(amount)}",
-                                    style = MaterialTheme.typography.bodyLarge,
-                                )
                             }
                         }
                     }
@@ -180,8 +186,8 @@ fun Context.RoomFinances() {
             )
             transactions.forEach { transaction ->
                 DisplayOneTransaction(transaction, onDelete = {
-                    deleteTransaction(transactionId = transaction.id!!)
-                    transactions = transactions.filter { it != transaction }
+                    deleteTransaction(transactionId = transaction.id!!).goInParallel()
+                    deleteTransaction(transaction)
                 })
             }
             Spacer(Modifier.height(48.dp))

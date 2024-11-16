@@ -39,6 +39,7 @@ fun Context.register(login: String, password: String) = requestHelper.Post(
     val token = json.parseToJsonElement(body).jsonObject["auth_token"]?.jsonPrimitive?.content?.let { Token(it) }
     if (token == null) return@map ("Unknown error")
 
+    tokenHelper.setToken(token)
 //    navController.navigate("main_page")
     null
 }.goAndWait()

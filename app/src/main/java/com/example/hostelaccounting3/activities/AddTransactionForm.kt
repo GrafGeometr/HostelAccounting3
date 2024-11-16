@@ -9,16 +9,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.zIndex
-import com.example.hostelaccounting3.mechanics.Transaction
-import com.example.hostelaccounting3.mechanics.UserInTheRoom
-import com.example.hostelaccounting3.mechanics.UserSpend
+import com.example.hostelaccounting3.mechanics.UserRoom
 
 
 @Composable
 fun AddTransactionForm(
     onClose: () -> Unit,
     onSuccess: (money: Int, toUserId: Int) -> Unit,
-    userList: List<UserInTheRoom>,
+    userList: List<UserRoom>,
     currentUserId: Int
 ) {
     var money by remember { mutableStateOf("") }
@@ -89,9 +87,9 @@ fun AddTransactionForm(
                         onDismissRequest = { showDropdown = false },
                     ) {
                         userList.forEach { user ->
-                            if (user.userId == currentUserId) return@forEach
+                            if (user.id == currentUserId) return@forEach
                             DropdownMenuItem(onClick = {
-                                toUserId = user.userId
+                                toUserId = user.id
                                 toUserShortName = user.shortName
                                 showDropdown = false
                             }, text = { Text(user.shortName) })

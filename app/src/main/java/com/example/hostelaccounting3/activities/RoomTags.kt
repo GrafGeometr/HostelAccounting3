@@ -1,5 +1,6 @@
 package com.example.hostelaccounting3.activities
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
@@ -9,30 +10,40 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import com.example.hostelaccounting3.context.Context
-import com.example.hostelaccounting3.mechanics.*
+import com.example.hostelaccounting3.mechanics.RoomData
+import com.example.hostelaccounting3.mechanics.Tag
+import com.example.hostelaccounting3.mechanics.deleteTag
+import com.example.hostelaccounting3.requests.goInParallel
+
 
 @Composable
-fun Context.RoomTags() {
-    val roomId = roomsManager.getCurrentRoomId()!!
+fun Context.RoomTags(
+    currentRoomData: RoomData,
+    addTag: (Tag) -> Unit,
+    editTag: (Tag, Tag) -> Unit,
+    deleteTag: (Tag) -> Unit,
+    rerender: Boolean
+) {
+    val tags = currentRoomData.tags
 
-    var tags by remember { mutableStateOf(getTags(roomId)) }
+    println("Tags debug")
+    println(tags)
 
     var showAddForm by remember { mutableStateOf(false) }
     var editingTag: Tag? by remember { mutableStateOf(null) }
 
     Box(modifier = Modifier.fillMaxWidth()) {
 
-        if (showAddForm) {
-            AddTagForm(onClose = { showAddForm = false }, onSuccess = { tags += it })
-        }
+        if (showAddForm) AddTagForm(
+            onClose = { showAddForm = false }, onSuccess = addTag, currentRoomData
+        )
 
-        if (editingTag != null) {
-            EditTagForm(tag = editingTag!!, onClose = { editingTag = null }, onSuccess = { p1, p2 ->
-                tags = tags.map { if (it.id == p1.id) p2 else it }
-            })
-        }
+        if (editingTag != null) EditTagForm(
+            tag = editingTag!!, onClose = { editingTag = null }, onSuccess = editTag, currentRoomData
+        )
 
         Column(
             modifier = Modifier.fillMaxHeight().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
@@ -43,18 +54,16 @@ fun Context.RoomTags() {
                     editingTag = tag
                     showAddForm = false
                 }, onDelete = {
-                    deleteTag(tagId = tag.id)
-                    tags = tags.filter { it != tag }
+                    deleteTag(tagId = tag.id).goInParallel()
+                    deleteTag(tag)
                 })
-                if (idx != tags.lastIndex) {
-                    HorizontalDivider(color = MaterialTheme.colorScheme.outline)
-                }
+                if (idx != tags.lastIndex) HorizontalDivider(color = MaterialTheme.colorScheme.outline)
             }
             Spacer(Modifier.height(48.dp))
         }
 
         Box(
-            modifier = Modifier.align(Alignment.BottomStart).padding(start = 16.dp)
+            modifier = Modifier.align(Alignment.BottomStart).padding(start = 16.dp).background(Color.Transparent)
         ) {
             Button(
                 onClick = {
