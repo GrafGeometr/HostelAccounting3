@@ -19,18 +19,18 @@ class AppRequest(
 ) {
 
     suspend operator fun invoke(): HttpResponse {
-        println(url)
-        println(requestMethod)
-        println(requestBody)
-        println(cache)
+        //println("START SLOW!")
         if (cache.containsKey(url to requestBody)) {
             val (result, time) = cache[url to requestBody]!!
-            if ((Datetime.now() - time) < 7) {
+            if ((Datetime.now() - time) < 5) {
                 return result
             }
         }
+        //println("SEND REQUEST")
         val result = request()
+        //println("REQUEST SENT")
         cache[url to requestBody] = result to Datetime.now()
+        //println("END SLOW!")
         return result
     }
 
@@ -52,4 +52,8 @@ suspend fun <T> Action<T>.go(): T = this()
 
 fun <T> Action<T>.goAndWait() = runBlocking { go() }
 
-fun <T> Action<T>.goInParallel() = CoroutineScope(Dispatchers.Default).launch { go() }
+fun <T> Action<T>.goInParallel() {
+    CoroutineScope(Dispatchers.Default).launch {
+        go()
+    }
+}

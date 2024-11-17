@@ -23,11 +23,9 @@ class RoomsManager(private val storage: Storage) {
 }
 
 fun Context.createNewRoom(roomName: String) = RequestHelper.Post(
-    url = "$BASE_URL/rooms/create",
-    body = json.encodeToString(
+    url = "$BASE_URL/rooms/create", body = json.encodeToString(
         mapOf(
-            "auth_token" to tokenHelper.getToken()!!.value,
-            "name" to roomName
+            "auth_token" to tokenHelper.getToken()!!.value, "name" to roomName
         )
     )
 ).info().map { (body, status) ->
@@ -35,7 +33,25 @@ fun Context.createNewRoom(roomName: String) = RequestHelper.Post(
         Room(
             it["id"]!!.jsonPrimitive.int,
             it["name"]!!.jsonPrimitive.content,
-            it["code"]!!.jsonPrimitive.content
+            it["code"]!!.jsonPrimitive.content,
+            it["short_name"]!!.jsonPrimitive.content
+        )
+    }
+}.goAndWait()
+
+fun Context.joinRoom(code: String) = RequestHelper.Post(
+    url = "$BASE_URL/rooms/join", body = json.encodeToString(
+        mapOf(
+            "auth_token" to tokenHelper.getToken()!!.value, "code" to code
+        )
+    )
+).info().map { (body, status) ->
+    json.parseToJsonElement(body).jsonObject.let {
+        Room(
+            it["id"]!!.jsonPrimitive.int,
+            it["name"]!!.jsonPrimitive.content,
+            it["code"]!!.jsonPrimitive.content,
+            it["short_name"]!!.jsonPrimitive.content
         )
     }
 }.goAndWait()

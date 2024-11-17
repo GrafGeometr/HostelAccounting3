@@ -1,38 +1,88 @@
 package com.example.hostelaccounting3
 
+import Main
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.Button
+import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.*
+import androidx.compose.material3.darkColorScheme
+import androidx.compose.material3.lightColorScheme
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.graphics.Color
 import com.example.hostelaccounting3.context.Context
 import com.example.hostelaccounting3.login.TokenHelper
-import com.example.hostelaccounting3.login.login
-import com.example.hostelaccounting3.login.register
-import com.example.hostelaccounting3.mechanics.*
+import com.example.hostelaccounting3.mechanics.RoomData
+import com.example.hostelaccounting3.mechanics.RoomsManager
+import com.example.hostelaccounting3.mechanics.UserData
+import com.example.hostelaccounting3.mechanics.getUserData
 import com.example.hostelaccounting3.requests.RequestHelper
 import com.example.hostelaccounting3.storage.Storage
 import com.example.hostelaccounting3.storage.StorageManager
-import com.example.hostelaccounting3.ui.theme.HostelAccounting3Theme
 import kotlinx.serialization.json.Json
+
+fun rgb(r: Int, g: Int, b: Int) = Color(r, g, b)
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            HostelAccounting3Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+            val theme_ = isSystemInDarkTheme()
+            var theme by remember { mutableStateOf(theme_) }
+            var currentColorTheme = when(theme) {
+                true -> {
+                    darkColorScheme(
+                        primary = rgb(148, 226, 213), // Teal
+                        onTertiary = rgb(49, 50, 68), // Surface 0
+                        surfaceVariant = rgb(49, 50, 68), // Surface 0
+                        onSurfaceVariant = rgb(205, 214, 244), // Text
+                        outline = rgb(166, 227, 161), // Green
+                        background = rgb(17, 17, 27), // Crust
+                        onBackground = rgb(220, 224, 232), // Crust (invert)
+                        onError = rgb(30, 30, 46), // Base
+                        onPrimary = rgb(17, 17, 27) // Base
+                    )
+                }
+                false -> {
+                    lightColorScheme(
+                        primary = rgb(23, 146, 153), // Teal
+                        onTertiary = rgb(188, 192, 204), // Surface 1
+                        surfaceVariant = rgb(204, 208, 218), // Surface 0
+                        onSurfaceVariant = rgb(76, 79, 105), // Text
+                        outline = rgb(64, 160, 43), // Green
+                        background = rgb(220, 224, 232), // Crust
+                        onBackground = rgb(17, 17, 27), // Crust (invert)
+                        onError = rgb(239, 241, 245), // Base
+                        onPrimary = rgb(239, 241, 245) // Base
+                    )
+                }
+            }
+            MaterialTheme(
+                colorScheme = currentColorTheme
+            ) {
+                Scaffold(
+                    modifier = Modifier.fillMaxSize(),
+                ) { innerPadding ->
                     val context = object : Context {
                         override val storage: Storage =
-                            StorageManager(preferences = getSharedPreferences("sharedPrefs", MODE_PRIVATE))
+                            StorageManager(
+                                preferences = getSharedPreferences(
+                                    "sharedPrefs",
+                                    MODE_PRIVATE
+                                )
+                            )
                         override val requestHelper: RequestHelper = RequestHelper
                         override val tokenHelper: TokenHelper = TokenHelper(storage)
 
@@ -44,263 +94,22 @@ class MainActivity : ComponentActivity() {
                         }
 
                         override var userData: UserData?
-                            get() = data ?: getUserData()?.also { data = it }
+                            get() = data ?: getUserData().also { data = it }
                             set(value) {
                                 data = value
                             }
                         override val roomsManager: RoomsManager = RoomsManager(storage)
+
+                        override var roomData: RoomData? = null
+                        override var syncLoopRunning: Boolean = false
                     }
-
-                    context.Main()
+                    Box(modifier = Modifier.padding(innerPadding)) {
+                        context.Main(onThemeChange = {
+                            theme = !theme
+                        })
+                    }
                 }
             }
-        }
-    }
-}
-
-@Composable
-fun Context.Main() {
-    var token by remember { mutableStateOf(tokenHelper.getToken()) }
-
-
-    when (token) {
-        null -> LoginOrRegister { token = tokenHelper.getToken() }
-        else -> MainMenu()
-    }
-}
-
-@Composable
-fun Context.MainMenu() {
-    var roomId by remember { mutableStateOf(roomsManager.getCurrentRoomId()) }
-    if (roomId == null) {
-        Rooms {
-            roomId = roomsManager.getCurrentRoomId()
-        }
-    } else {
-        OneRoom {
-            roomId = roomsManager.getCurrentRoomId()
-        }
-    }
-}
-
-@Composable
-fun Context.LoginOrRegister(onSuccess: () -> Unit) {
-    var needLogin by remember { mutableStateOf(true) }
-
-    when {
-        needLogin -> Login(onSuccess) {
-            needLogin = false
-        }
-
-        else -> Register(onSuccess) {
-            needLogin = true
-        }
-    }
-}
-
-@Composable
-fun Context.Login(onSuccess: () -> Unit, onWantRegister: () -> Unit) {
-    var login by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-
-
-    var showWarning by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
-
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.Center
-    ) {
-        TextField(value = login, onValueChange = { login = it })
-        TextField(value = password, onValueChange = { password = it })
-        Button(onClick = {
-            val error = login(login, password)?.let {
-                showWarning = true
-                errorMessage = it
-            }
-            if (error == null) {
-                onSuccess()
-            }
-        }) {
-            Text("Login")
-        }
-        Button(onClick = {
-            onWantRegister()
-        }) {
-            Text("Register (if you don't have an account)")
-        }
-
-        if (showWarning) {
-            Text(text = errorMessage)
-        }
-    }
-}
-
-@Composable
-fun Context.Register(onSuccess: () -> Unit, onWantLogin: () -> Unit) {
-    var login by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-
-    var showWarning by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
-
-    Column(
-        modifier = Modifier.fillMaxSize().padding(16.dp), verticalArrangement = Arrangement.Center
-    ) {
-        TextField(value = login, onValueChange = { login = it })
-        TextField(value = password, onValueChange = { password = it })
-        Button(onClick = {
-            val error = register(login, password)?.let {
-                showWarning = true
-                errorMessage = it
-            }
-            if (error == null) {
-                onSuccess()
-            }
-        }) {
-            Text("Register")
-        }
-        Button(onClick = { onWantLogin() }) {
-            Text("Login (if you already have an account)")
-        }
-
-        if (showWarning) {
-            Text(text = errorMessage)
-        }
-    }
-}
-
-@Composable
-fun Context.Rooms(onRoomSelect: () -> Unit) {
-    println(roomsManager.getCurrentRoomId())
-    // You can create new room
-    val rooms = getRooms()
-
-    println(rooms)
-    Column {
-        Row {
-            rooms.forEach { room ->
-                Button(onClick = {
-                    roomsManager.setCurrentRoomId(room.id)
-                    onRoomSelect()
-                }) { Text(room.name) }
-            }
-        }
-
-        Button(onClick = {
-
-        }) {
-            Text("Create new room")
-        }
-    }
-}
-
-@Composable
-fun Context.OneRoom(onKillRoom: () -> Unit) {
-    val roomId = roomsManager.getCurrentRoomId()
-    var navbar by remember { mutableStateOf(0) }
-    Column {
-        Row {
-            Button(onClick = { navbar = 0 }) { Text("Покупки") }
-            Button(onClick = { navbar = 1 }) { Text("Финансы") }
-            Button(onClick = { navbar = 2 }) { Text("Задачи") }
-            Button(onClick = { navbar = 3 }) { Text("Теги") }
-            Button(onClick = {
-                roomsManager.killRoom()
-                onKillRoom()
-            }) { Text("Выйти") }
-        }
-        when (navbar) {
-            0 -> RoomPurchases()
-            1 -> RoomFinances()
-            2 -> RoomTasks()
-            3 -> RoomTags()
-        }
-    }
-}
-
-@Composable
-fun Context.RoomPurchases() {
-    val roomId = roomsManager.getCurrentRoomId()!!
-
-    Text("Страница покупок")
-    Column {
-        Row {
-            Text("Header")
-        }
-        var purchases by remember { mutableStateOf(getPurchases(roomId)) }
-        purchases.forEach { purchase ->
-            Row {
-                Text(purchase.money.toString())
-                Text(purchase.description)
-                Text(purchase.datetime.toString())
-                Button(onClick = {
-                    val newPurchase = editPurchase(roomId, purchaseId = purchase.id, 1000, "Test purchase edit")
-                    purchases = purchases.filter { it != purchase } + newPurchase
-                }) {
-                    Text("Изменить")
-                }
-                Button(onClick = {
-                    deletePurchase(purchaseId = purchase.id)
-                    purchases = purchases.filter { it != purchase }
-                }) {
-                    Text("Удалить")
-                }
-            }
-        }
-
-        Button(onClick = {
-            val purchase = addPurchase(roomId, 1000, "Test purchase")
-            purchases += purchase
-        }) {
-            Text("ADD")
-        }
-    }
-}
-
-
-@Composable
-fun Context.RoomFinances() {
-    Text("Страница финансов")
-}
-
-@Composable
-fun Context.RoomTasks() {
-    Text("Страница заданий")
-}
-
-@Composable
-fun Context.RoomTags() {
-    val roomId = roomsManager.getCurrentRoomId()!!
-
-    Text("Страница тегов")
-    Column {
-        Row {
-            Text("Header")
-        }
-        var tags by remember { mutableStateOf(getTags(roomId)) }
-        tags.forEach { tag ->
-            Row {
-                Text(tag.name.toString())
-                Button(onClick = {
-                    val newTag = editTag(roomId, tagId = tag.id, "Test tag edit")
-                    tags = tags.filter { it != tag } + newTag
-                }) {
-                    Text("Изменить")
-                }
-                Button(onClick = {
-                    deleteTag(tagId = tag.id)
-                    tags = tags.filter { it != tag }
-                }) {
-                    Text("Удалить")
-                }
-            }
-        }
-
-        Button(onClick = {
-            val tag = addTag(roomId, "Test tag")
-            tags += tag
-        }) {
-            Text("ADD")
         }
     }
 }

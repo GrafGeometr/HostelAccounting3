@@ -23,4 +23,4 @@ fun Context.getUserData() = tokenHelper.getToken()?.let {
         val json = json.parseToJsonElement(body).jsonObject
         UserData(json["id"]?.jsonPrimitive?.int!!, json["name"]?.jsonPrimitive?.content!!)
     }.goAndWait()
-}
+}!!
