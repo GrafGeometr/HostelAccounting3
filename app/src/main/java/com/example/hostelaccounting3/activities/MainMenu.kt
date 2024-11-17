@@ -8,13 +8,13 @@ import com.example.hostelaccounting3.requests.*
 import kotlinx.coroutines.delay
 
 @Composable
-fun Context.Main() {
+fun Context.Main(onThemeChange: () -> Unit) {
     var token by remember { mutableStateOf(tokenHelper.getToken()) }
 
 
     when (token) {
         null -> LoginOrRegister { token = tokenHelper.getToken() }
-        else -> MainMenu {
+        else -> MainMenu(onThemeChange) {
             token = tokenHelper.getToken()
         }
     }
@@ -31,19 +31,25 @@ fun Context.syncLoop(onSuccess: (RoomData) -> Unit): Action<Unit> = {
     syncLoopRunning = true
     while (true) {
         println("Updating room data...")
-        updateRoomData(onSuccess)
-        delay(10000)
+        try {
+            updateRoomData(onSuccess)
+        }
+        catch (e: Exception) {
+            println(e.toString())
+        }
+        delay(20000)
     }
 }
 
 
 @Composable
-fun Context.MainMenu(onLogout: () -> Unit) {
+fun Context.MainMenu(onThemeChange: () -> Unit, onLogout: () -> Unit) {
     println("RENDERING!!!")
     var roomId by remember { mutableStateOf(roomsManager.getCurrentRoomId()) }
     if (roomId == null) {
         Rooms(
-            { roomId = roomsManager.getCurrentRoomId() }, onLogout = onLogout
+            { roomId = roomsManager.getCurrentRoomId() }, onLogout = onLogout,
+            onThemeChange = onThemeChange
         )
     } else {
         roomData = getRoomData(roomId!!).goAndWait()

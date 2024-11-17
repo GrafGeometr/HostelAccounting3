@@ -30,13 +30,14 @@ fun DisplayOneTag(
             Text(
                 "#", fontWeight = FontWeight.Bold, style = MaterialTheme.typography.headlineMedium.copy(
                     fontWeight = FontWeight.Bold
-                ), color = MaterialTheme.colorScheme.onBackground
+                ), color = MaterialTheme.colorScheme.onSurfaceVariant
             )
             Spacer(Modifier.width(8.dp))
             Text(
                 tag.name,
                 modifier = Modifier.align(Alignment.CenterVertically),
-                style = MaterialTheme.typography.bodyLarge
+                style = MaterialTheme.typography.bodyLarge,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
             )
         }
 
@@ -45,12 +46,14 @@ fun DisplayOneTag(
         ) {
             IconButton(onClick = onEdit) {
                 Icon(
-                    imageVector = Icons.Filled.Edit, contentDescription = "Edit tag"
+                    imageVector = Icons.Filled.Edit, contentDescription = "Edit tag",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             IconButton(onClick = onDelete) {
                 Icon(
-                    imageVector = Icons.Filled.Delete, contentDescription = "Delete tag"
+                    imageVector = Icons.Filled.Delete, contentDescription = "Delete tag",
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }

@@ -48,8 +48,8 @@ fun Context.DisplayOneTask(
             Row (verticalAlignment = Alignment.CenterVertically) {
 
                 var checked by remember { mutableStateOf(false) }
-                val checkedColor: Color = Palette.container1
-                val uncheckedColor: Color = Palette.background
+                val checkedColor: Color = MaterialTheme.colorScheme.outline
+                val uncheckedColor: Color = MaterialTheme.colorScheme.background
                 val modifier = Modifier
                 val isChecked = !task.isOpened
                 val size = 32f

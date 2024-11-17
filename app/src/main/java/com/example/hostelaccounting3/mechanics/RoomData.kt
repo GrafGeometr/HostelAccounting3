@@ -22,7 +22,7 @@ data class RoomData(
     val roomId: Int,
     val currentUser: UserRoom,
 ) {
-    fun addPurchase(purchase: Purchase) = copy(purchases = purchases + purchase)
+    fun addPurchase(purchase: Purchase) = copy(purchases = listOf(purchase) + purchases)
     fun editPurchase(old: Purchase, new: Purchase) =
         copy(purchases = purchases.map { if (it.id == old.id) new else it })
 
@@ -47,14 +47,14 @@ data class RoomData(
 }
 
 fun Context.getRoomData(roomId: Int): Action<RoomData> {
-    println("Sending request to get room data...")
+    //println("Sending request to get room data...")
     return tokenHelper.getToken()?.let { token ->
         RequestHelper.Get(
             url = "$BASE_URL/rooms/summary", body = json.encodeToString(
                 mapOf("auth_token" to token.value, "room_id" to roomId.toString())
             )
         ).info().map { (body, _) ->
-            println(body)
+            //println(body)
             json.parseToJsonElement(body).jsonObject.let { roomDataJson ->
                 RoomData(financesInfo = roomDataJson["finance"]!!.jsonObject.let { financesJson ->
                     FinancesInfo(

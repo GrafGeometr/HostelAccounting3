@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -36,20 +37,17 @@ fun Context.DisplayOnePurchase(
                         modifier = Modifier.fillMaxWidth().padding(bottom = 2.dp),
                         style = MaterialTheme.typography.bodyLarge.copy(
                             fontWeight = FontWeight.SemiBold, fontSize = 20.sp
-                        ),
-                        color = Palette.text
+                        )
                     )
                     Text(
                         "${purchase.money} - ${purchase.description}",
                         modifier = Modifier.fillMaxWidth().padding(bottom = 2.dp),
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Palette.text
+                        style = MaterialTheme.typography.bodyLarge
                     )
                     Text(
                         purchase.datetime.toString(),
                         modifier = Modifier.alpha(0.5f),
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Palette.text
+                        style = MaterialTheme.typography.bodySmall
                     )
                 }
                 Column(modifier = Modifier.weight(1f).fillMaxHeight(), verticalArrangement = Arrangement.Center) {
@@ -62,14 +60,14 @@ fun Context.DisplayOnePurchase(
                             Icon(
                                 imageVector = Icons.Filled.Edit,
                                 contentDescription = "Edit purchase",
-                                tint = Palette.text
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                         IconButton(onClick = onDelete) {
                             Icon(
                                 imageVector = Icons.Filled.Delete,
                                 contentDescription = "Delete purchase",
-                                tint = Palette.text
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                         }
                     }

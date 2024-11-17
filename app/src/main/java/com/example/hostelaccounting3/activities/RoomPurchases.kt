@@ -2,6 +2,7 @@ package com.example.hostelaccounting3.activities
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
@@ -14,12 +15,13 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.example.hostelaccounting3.Palette
+//import com.example.hostelaccounting3.Palette
 import com.example.hostelaccounting3.context.Context
 import com.example.hostelaccounting3.mechanics.Purchase
 import com.example.hostelaccounting3.mechanics.RoomData
 import com.example.hostelaccounting3.mechanics.deletePurchase
 import com.example.hostelaccounting3.requests.goInParallel
+import androidx.compose.foundation.lazy.items
 
 
 @Composable
@@ -47,22 +49,26 @@ fun Context.RoomPurchases(
             onSuccess = editPurchase,
             currentRoomData
         )
-
         Column(
-            modifier = Modifier.fillMaxHeight().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp, vertical=4.dp).background(
-                Palette.background),
-            verticalArrangement = Arrangement.spacedBy(8.dp)
+            modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
-            purchases.forEach { purchase ->
-                DisplayOnePurchase(purchase, onEdit = {
-                    editingPurchase = purchase
-                    showAddForm = false
-                }, onDelete = {
-                    deletePurchase(purchaseId = purchase.id).goInParallel()
-                    deletePurchase(purchase)
-                })
+            LazyColumn(
+                modifier = Modifier
+                    .padding(horizontal = 16.dp, vertical = 4.dp).height(1000.dp),
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                items(1) {_ -> Spacer(Modifier.height(12.dp))}
+                items(purchases) { purchase ->
+                    DisplayOnePurchase(purchase, onEdit = {
+                        editingPurchase = purchase
+                        showAddForm = false
+                    }, onDelete = {
+                        deletePurchase(purchaseId = purchase.id).goInParallel()
+                        deletePurchase(purchase)
+                    })
+                }
+                items(1) { _ -> Spacer(Modifier.height(48.dp))}
             }
-            Spacer(Modifier.height(48.dp))
         }
 
         Box(
@@ -72,7 +78,7 @@ fun Context.RoomPurchases(
                 onClick = {
                     showAddForm = true
                     editingPurchase = null
-                }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                },
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
@@ -83,4 +89,3 @@ fun Context.RoomPurchases(
         }
     }
 }
-

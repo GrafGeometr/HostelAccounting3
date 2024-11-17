@@ -6,6 +6,7 @@ import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,8 +26,8 @@ import com.example.hostelaccounting3.mechanics.getRooms
 import com.example.hostelaccounting3.mechanics.joinRoom
 
 @Composable
-fun Context.Rooms(onRoomSelect: () -> Unit, onLogout: () -> Unit) {
-    println(roomsManager.getCurrentRoomId())
+fun Context.Rooms(onRoomSelect: () -> Unit, onLogout: () -> Unit, onThemeChange: () -> Unit) {
+    //println(roomsManager.getCurrentRoomId())
     // You can create new room
     val rooms = getRooms()
 
@@ -37,7 +38,7 @@ fun Context.Rooms(onRoomSelect: () -> Unit, onLogout: () -> Unit) {
         if (showAddForm) AddRoomForm(onRoomSelect = onRoomSelect, onClose = { showAddForm = false })
 
         Column(
-            modifier = Modifier.fillMaxHeight().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
+            modifier = Modifier.fillMaxHeight().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp).padding(top=16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             rooms.forEach { room ->
@@ -60,6 +61,19 @@ fun Context.Rooms(onRoomSelect: () -> Unit, onLogout: () -> Unit) {
                 Icon(
                     imageVector = Icons.Filled.Add,
                     contentDescription = "Добавить комнату",
+                    tint = MaterialTheme.colorScheme.onError
+                )
+            }
+        }
+        Box (
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) {
+            Button(
+                onClick = onThemeChange
+            ) {
+                Icon(
+                    imageVector = Icons.Filled.Star,
+                    contentDescription = "Смена темы",
                     tint = MaterialTheme.colorScheme.onError
                 )
             }

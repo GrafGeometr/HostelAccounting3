@@ -1,7 +1,6 @@
 package com.example.hostelaccounting3.requests
 
 
-import com.example.hostelaccounting3.datetime.Datetime
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
 import io.ktor.client.request.*
@@ -39,10 +38,15 @@ object RequestHelper {
         url: URL,
         body: Body,
         contentType: ContentType = ContentType.Application.Json
-    ): AppRequest = createRequest(
-        url,
-        HttpMethod.Get,
-        body,
-        contentType
-    )
+    ): AppRequest {
+        println("BEGIN")
+        val req = createRequest(
+            url,
+            HttpMethod.Get,
+            body,
+            contentType
+        )
+        println("END")
+        return req
+    }
 }

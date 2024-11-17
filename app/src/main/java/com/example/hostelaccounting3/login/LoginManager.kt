@@ -15,7 +15,7 @@ fun Context.login(login: String, password: String) = requestHelper.Post(
         mapOf("name" to login, "password" to password)
     ), contentType = ContentType.Application.Json
 ).info().map { (body, status) ->
-    println("Login results came")
+    // println("Login results came")
     if (status.value == 400) return@map "No name or password"
     if (status.value == 403) return@map "Invalid name or password"
     if (status.value >= 400) return@map "Unknown error"

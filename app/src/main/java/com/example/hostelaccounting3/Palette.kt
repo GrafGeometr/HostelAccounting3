@@ -46,10 +46,11 @@ object Palette {
             Theme.Light -> Color(0xff215fdb.toInt())
             Theme.Dark -> Color(0xff1e1f21.toInt())
         }
-}
 
-sealed class Theme {
-    data object Light : Theme()
-    data object Dark : Theme()
 
+    sealed class Theme {
+        data object Light : Theme()
+        data object Dark : Theme()
+
+    }
 }

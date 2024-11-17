@@ -22,7 +22,7 @@ fun DisplayOneTransaction(
 ) {
     Card(
         modifier = Modifier.fillMaxWidth().padding(vertical = 8.dp)
-            .border(width = 1.dp, color = Color(152, 237, 88), shape = MaterialTheme.shapes.medium)
+            .border(width = 1.dp, color = MaterialTheme.colorScheme.outline, shape = MaterialTheme.shapes.medium)
     ) {
         Row(
             modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp, vertical = 16.dp),

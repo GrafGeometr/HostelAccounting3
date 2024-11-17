@@ -6,12 +6,14 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.graphics.vector.rememberVectorPainter
 import androidx.compose.ui.res.vectorResource
@@ -90,46 +92,51 @@ fun Context.OneRoom(
             Button(
                 onClick = { navbar = 0 }, colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
             ) {
-                Image(
+                Icon(
                     painter = purchasesImage,
                     contentDescription = "Your SVG image",
                     modifier = Modifier.size(24.dp).alpha(if (navbar == 0) 1f else 0.5f),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Button(
                 onClick = { navbar = 1 }, colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
             ) {
-                Image(
+                Icon(
                     painter = financesImage,
                     contentDescription = "Your SVG image",
                     modifier = Modifier.size(24.dp).alpha(if (navbar == 1) 1f else 0.5f),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Button(
                 onClick = { navbar = 2 }, colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
             ) {
-                Image(
+                Icon(
                     painter = tasksImage,
                     contentDescription = "Your SVG image",
                     modifier = Modifier.size(24.dp).alpha(if (navbar == 2) 1f else 0.5f),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Button(
                 onClick = { navbar = 3 }, colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
             ) {
-                Image(
+                Icon(
                     painter = tagsImage,
                     contentDescription = "Your SVG image",
                     modifier = Modifier.size(24.dp).alpha(if (navbar == 3) 1f else 0.5f),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Button(
                 onClick = onKillRoom, colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
             ) {
-                Image(
+                Icon(
                     painter = logoutImage,
                     contentDescription = "Your SVG image",
                     modifier = Modifier.size(24.dp).alpha(0.5f),
+                    tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
         }
