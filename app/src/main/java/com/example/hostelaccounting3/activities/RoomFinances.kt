@@ -33,6 +33,7 @@ fun Context.RoomFinances(
     val userList = currentRoomData.users
 
     var showAddForm by remember { mutableStateOf(false) }
+    var deletingTransaction: Transaction? by remember { mutableStateOf(null) }
 
     val currentUserId = currentRoomData.currentUser.id
 
@@ -52,6 +53,17 @@ fun Context.RoomFinances(
                 addTransaction(roomId, transaction).goInParallel()
                 addTransaction(transaction)
             }, userList = userList, currentUserId = currentUserId)
+        }
+
+        if (deletingTransaction != null) {
+            val transaction = deletingTransaction!!
+
+            DeleterForm(unsafeDeleter = {
+                deleteTransaction(transactionId = transaction.id!!).goInParallel()
+                deleteTransaction(transaction)
+            }) {
+                deletingTransaction = null
+            }
         }
 
         Column(
@@ -186,8 +198,7 @@ fun Context.RoomFinances(
             )
             transactions.forEach { transaction ->
                 DisplayOneTransaction(transaction, onDelete = {
-                    deleteTransaction(transactionId = transaction.id!!).goInParallel()
-                    deleteTransaction(transaction)
+                    deletingTransaction = transaction
                 })
             }
             Spacer(Modifier.height(48.dp))

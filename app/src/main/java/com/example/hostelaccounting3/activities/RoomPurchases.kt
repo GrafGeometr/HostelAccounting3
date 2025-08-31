@@ -36,6 +36,7 @@ fun Context.RoomPurchases(
 
     var showAddForm by remember { mutableStateOf(false) }
     var editingPurchase: Purchase? by remember { mutableStateOf(null) }
+    var deletingPurchase: Purchase? by remember { mutableStateOf(null) }
 
     Box(modifier = Modifier.fillMaxWidth()) {
 
@@ -49,30 +50,44 @@ fun Context.RoomPurchases(
             onSuccess = editPurchase,
             currentRoomData
         )
+
+        if (deletingPurchase != null) {
+            val purchase = deletingPurchase!!
+
+            DeleterForm(unsafeDeleter = {
+                deletePurchase(purchaseId = purchase.id).goInParallel()
+                deletePurchase(purchase)
+            }) {
+                deletingPurchase = null
+            }
+        }
+
         Column(
             modifier = Modifier.verticalScroll(rememberScrollState())
         ) {
             LazyColumn(
                 modifier = Modifier
-                    .padding(horizontal = 16.dp, vertical = 4.dp).height(1000.dp),
+                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                    .height(1000.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(1) {_ -> Spacer(Modifier.height(12.dp))}
+                items(1) { _ -> Spacer(Modifier.height(12.dp)) }
                 items(purchases) { purchase ->
                     DisplayOnePurchase(purchase, onEdit = {
                         editingPurchase = purchase
                         showAddForm = false
                     }, onDelete = {
-                        deletePurchase(purchaseId = purchase.id).goInParallel()
-                        deletePurchase(purchase)
+                        deletingPurchase = purchase
                     })
                 }
-                items(1) { _ -> Spacer(Modifier.height(48.dp))}
+                items(1) { _ -> Spacer(Modifier.height(48.dp)) }
             }
         }
 
         Box(
-            modifier = Modifier.align(Alignment.BottomStart).padding(start = 16.dp)
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(start = 16.dp)
         ) {
             Button(
                 onClick = {

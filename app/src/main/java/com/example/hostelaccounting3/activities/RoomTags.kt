@@ -34,6 +34,7 @@ fun Context.RoomTags(
 
     var showAddForm by remember { mutableStateOf(false) }
     var editingTag: Tag? by remember { mutableStateOf(null) }
+    var deletingTag: Tag? by remember { mutableStateOf(null) }
 
     Box(modifier = Modifier.fillMaxWidth()) {
 
@@ -42,11 +43,27 @@ fun Context.RoomTags(
         )
 
         if (editingTag != null) EditTagForm(
-            tag = editingTag!!, onClose = { editingTag = null }, onSuccess = editTag, currentRoomData
+            tag = editingTag!!,
+            onClose = { editingTag = null },
+            onSuccess = editTag,
+            currentRoomData
         )
 
+        if (deletingTag != null) {
+            val tag: Tag = deletingTag!!
+            DeleterForm(unsafeDeleter = {
+                deleteTag(tagId = tag.id).goInParallel()
+                deleteTag(tag)
+            }) {
+                deletingTag = null
+            }
+        }
+
         Column(
-            modifier = Modifier.fillMaxHeight().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
+            modifier = Modifier
+                .fillMaxHeight()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             tags.forEachIndexed { idx, tag ->
@@ -54,8 +71,7 @@ fun Context.RoomTags(
                     editingTag = tag
                     showAddForm = false
                 }, onDelete = {
-                    deleteTag(tagId = tag.id).goInParallel()
-                    deleteTag(tag)
+                    deletingTag = tag
                 })
                 if (idx != tags.lastIndex) HorizontalDivider(color = MaterialTheme.colorScheme.outline)
             }
@@ -63,13 +79,17 @@ fun Context.RoomTags(
         }
 
         Box(
-            modifier = Modifier.align(Alignment.BottomStart).padding(start = 16.dp).background(Color.Transparent)
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(start = 16.dp)
+                .background(Color.Transparent)
         ) {
             Button(
                 onClick = {
                     showAddForm = true
                     editingTag = null
-                }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,

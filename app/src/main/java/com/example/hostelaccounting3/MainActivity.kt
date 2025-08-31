@@ -39,9 +39,16 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val theme_ = isSystemInDarkTheme()
+            val storage: Storage = StorageManager(
+                preferences = getSharedPreferences(
+                    "sharedPrefs", MODE_PRIVATE
+                )
+            )
+
+            val theme_: Boolean =
+                storage.get("Theme")?.let { it == "true" } ?: isSystemInDarkTheme()
             var theme by remember { mutableStateOf(theme_) }
-            val currentColorTheme = when(theme) {
+            val currentColorTheme = when (theme) {
                 true -> {
                     darkColorScheme(
                         primary = rgb(148, 226, 213), // Teal
@@ -55,6 +62,7 @@ class MainActivity : ComponentActivity() {
                         onPrimary = rgb(17, 17, 27) // Base
                     )
                 }
+
                 false -> {
                     lightColorScheme(
                         primary = rgb(23, 146, 153), // Teal
@@ -76,13 +84,7 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                 ) { innerPadding ->
                     val context = object : Context {
-                        override val storage: Storage =
-                            StorageManager(
-                                preferences = getSharedPreferences(
-                                    "sharedPrefs",
-                                    MODE_PRIVATE
-                                )
-                            )
+                        override val storage: Storage = storage
                         override val requestHelper: RequestHelper = RequestHelper
                         override val tokenHelper: TokenHelper = TokenHelper(storage)
 
@@ -106,6 +108,7 @@ class MainActivity : ComponentActivity() {
                     Box(modifier = Modifier.padding(innerPadding)) {
                         context.Main(onThemeChange = {
                             theme = !theme
+                            storage.set("Theme", theme.toString())
                         })
                     }
                 }
