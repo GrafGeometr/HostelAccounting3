@@ -32,6 +32,7 @@ fun Context.RoomTasks(
 
     var showAddForm by remember { mutableStateOf(false) }
     var editingTask: Task? by remember { mutableStateOf(null) }
+    var deletingTask: Task? by remember { mutableStateOf(null) }
 
     Box(modifier = Modifier.fillMaxWidth()) {
 
@@ -54,8 +55,21 @@ fun Context.RoomTasks(
             )
         }
 
+        if (deletingTask != null) {
+            val task = deletingTask!!
+            DeleterForm(unsafeDeleter = {
+                deleteTask(roomId, task).goInParallel()
+                deleteTask(task)
+            }) {
+                deletingTask = null
+            }
+        }
+
         Column(
-            modifier = Modifier.fillMaxHeight().verticalScroll(rememberScrollState()).padding(horizontal = 16.dp),
+            modifier = Modifier
+                .fillMaxHeight()
+                .verticalScroll(rememberScrollState())
+                .padding(horizontal = 16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
             currentRoomData.tasks.forEach { task ->
@@ -63,21 +77,23 @@ fun Context.RoomTasks(
                     editingTask = task
                     showAddForm = false
                 }, onDelete = {
-                    deleteTask(roomId, task).goInParallel()
-                    deleteTask(task)
+                    deletingTask = task
                 }, editTask = editTask, currentRoomData = currentRoomData)
             }
             Spacer(Modifier.height(48.dp))
         }
 
         Box(
-            modifier = Modifier.align(Alignment.BottomStart).padding(start = 16.dp)
+            modifier = Modifier
+                .align(Alignment.BottomStart)
+                .padding(start = 16.dp)
         ) {
             Button(
                 onClick = {
                     showAddForm = true
                     editingTask = null
-                }, colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
             ) {
                 Icon(
                     imageVector = Icons.Filled.Add,
