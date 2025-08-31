@@ -58,18 +58,21 @@ fun Context.OneRoom(
         ImageVector.vectorResource(R.drawable.logout)
     )
 
-//    var currentRoomData by remember { mutableStateOf(roomData) }
     val currentRoomData = roomData
 
-    var navbar by remember { mutableStateOf(0) }
-    Column(modifier = Modifier.fillMaxSize().padding(top = 32.dp)) {
+    var navbar by remember { mutableIntStateOf(storage.get("Navbar")?.toInt() ?: 0) }
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(top = 32.dp)
+    ) {
         Row(
             modifier = Modifier.weight(10f)
         ) {
-            println("Tags debug in room")
-            println(currentRoomData.tags)
             when (navbar) {
-                0 -> RoomPurchases(currentRoomData, addPurchase, editPurchase, deletePurchase, rerender)
+                0 -> RoomPurchases(
+                    currentRoomData, addPurchase, editPurchase, deletePurchase, rerender
+                )
 
                 1 -> RoomFinances(currentRoomData, addTransaction, deleteTransaction, rerender)
 
@@ -80,62 +83,94 @@ fun Context.OneRoom(
         }
         // horizontal divider large and black
         HorizontalDivider(
-            thickness = 2.dp, color = Color.Black, modifier = Modifier.fillMaxWidth().zIndex(1f)
+            thickness = 2.dp, color = Color.Black, modifier = Modifier
+                .fillMaxWidth()
+                .zIndex(1f)
         )
         Row(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier
+                .fillMaxWidth()
                 // color primary container
-                .background(MaterialTheme.colorScheme.onTertiary).weight(1f)
+                .background(MaterialTheme.colorScheme.onTertiary)
+                .weight(1f)
         ) {
             Button(
-                onClick = { navbar = 0 }, colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+                onClick = {
+                    storage.set("Navbar", "0")
+                    navbar = 0
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
             ) {
                 Icon(
                     painter = purchasesImage,
                     contentDescription = "Your SVG image",
-                    modifier = Modifier.size(24.dp).alpha(if (navbar == 0) 1f else 0.5f),
+                    modifier = Modifier
+                        .size(24.dp)
+                        .alpha(if (navbar == 0) 1f else 0.5f),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Button(
-                onClick = { navbar = 1 }, colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+                onClick = {
+                    storage.set("Navbar", "1")
+
+                    navbar = 1
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
             ) {
                 Icon(
                     painter = financesImage,
                     contentDescription = "Your SVG image",
-                    modifier = Modifier.size(24.dp).alpha(if (navbar == 1) 1f else 0.5f),
+                    modifier = Modifier
+                        .size(24.dp)
+                        .alpha(if (navbar == 1) 1f else 0.5f),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Button(
-                onClick = { navbar = 2 }, colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+                onClick = {
+                    storage.set("Navbar", "2")
+                    navbar = 2
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
             ) {
                 Icon(
                     painter = tasksImage,
                     contentDescription = "Your SVG image",
-                    modifier = Modifier.size(24.dp).alpha(if (navbar == 2) 1f else 0.5f),
+                    modifier = Modifier
+                        .size(24.dp)
+                        .alpha(if (navbar == 2) 1f else 0.5f),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Button(
-                onClick = { navbar = 3 }, colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+                onClick = {
+                    storage.set("Navbar", "3")
+                    navbar = 3
+                },
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
             ) {
                 Icon(
                     painter = tagsImage,
                     contentDescription = "Your SVG image",
-                    modifier = Modifier.size(24.dp).alpha(if (navbar == 3) 1f else 0.5f),
+                    modifier = Modifier
+                        .size(24.dp)
+                        .alpha(if (navbar == 3) 1f else 0.5f),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
             Button(
-                onClick = onKillRoom, colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
+                onClick = onKillRoom,
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Transparent)
             ) {
                 Icon(
                     painter = logoutImage,
                     contentDescription = "Your SVG image",
-                    modifier = Modifier.size(24.dp).alpha(0.5f),
+                    modifier = Modifier
+                        .size(24.dp)
+                        .alpha(0.5f),
                     tint = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }

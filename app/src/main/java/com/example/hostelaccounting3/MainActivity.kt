@@ -41,7 +41,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             val theme_ = isSystemInDarkTheme()
             var theme by remember { mutableStateOf(theme_) }
-            var currentColorTheme = when(theme) {
+            val currentColorTheme = when(theme) {
                 true -> {
                     darkColorScheme(
                         primary = rgb(148, 226, 213), // Teal

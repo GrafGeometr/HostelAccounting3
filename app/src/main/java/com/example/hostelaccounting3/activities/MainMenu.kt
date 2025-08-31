@@ -61,7 +61,6 @@ fun Context.MainMenu(onThemeChange: () -> Unit, onLogout: () -> Unit) {
 
 @Composable
 fun Context.Fuck(onLogout: () -> Unit) {
-    println("RERENDERING")
     var rerender by remember { mutableStateOf(true) }
 
     fun render() {
@@ -71,8 +70,6 @@ fun Context.Fuck(onLogout: () -> Unit) {
     if (!syncLoopRunning) {
         syncLoop {
             roomData = it
-            println("WHAT IS HAPPENING")
-            println(roomData!!.tags)
             render()
         }.goInParallel()
     }
